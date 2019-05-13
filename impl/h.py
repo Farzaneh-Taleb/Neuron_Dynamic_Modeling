@@ -63,11 +63,7 @@ def I_L(V):     return g_L * (V - E_L)
 
 # External current
 def I_inj(x, t):  # step up 10 uA/cm^2 every 100ms for 400ms
-     y= 20 * (t > 20.0) - 20 * (t > 20.2) + 40*(t>20.35) -40*(t>20.55)
-     # y= x * (t > 0.2) - x * (t > 0.4) + x * (t > 0.6) - x * (t > 0.8)
-
-     # y= x * (t > 0.2) - x * (t > 0.4) +  x * (t > 0.6) - x * (t > 0.8) +  x * (t > 0.6) - x * (t > 0.8)
-     # y= x * (t > 0.2) - x * (t > 0.4)
+     y= 20 * (t > 25.0) - 20 * (t > 25.2) + 40*(t>25.35) -40*(t>25.55)
      return y
      # return 10*t
 
@@ -106,20 +102,20 @@ il = I_L(V)
 
 plt.figure()
 
-plt.subplot(5, 1, 1)
+plt.subplot(2, 1, 1)
 plt.title('Hodgkin-Huxley Neuron')
-plt.plot(t, V, 'k')
+plt.plot(t[2000:4000], V[2000:4000] )
 plt.ylabel('V (mV)')
 
 
 
-plt.subplot(5, 1, 4)
-plt.plot(t, I_inj(20 , t), 'k')
+plt.subplot(2, 1, 2)
+plt.plot(t[2000:4000], I_inj(20 , t)[2000:4000])
 plt.xlabel('t (ms)')
 plt.ylabel('$I_{inj}$ ($\\mu{A}/cm^2$)')
 plt.ylim(-1, 21)
 
 
-plt.ylim(-1, 40)
+plt.ylim(-1, 41)
 plt.legend()
 plt.show()
