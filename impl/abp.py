@@ -1,22 +1,20 @@
 """
 @author Farzaneh.Tlb
 5/13/19 10:52 AM
-Implementation of .... (Fill this line)
+Implementation of Hodgkin & Huxley (Fill this line)
 """
+
 import scipy as sp
 import pylab as plt
 from scipy.integrate import odeint
 import numpy as np
-## Full Hodgkin-Huxley Model (copied from Computational Lab 2)
 
 # Constants
 C_m = 1.0  # membrane capacitance, in uF/cm^2
 g_Na = 120.0  # maximum conducances, in mS/cm^2
 g_K = 36.0
 g_L = 0.3
-# E_Na = 50.0  # Nernst reversal potentials, in mV
 E_Na = 55.0  # Nernst reversal potentials, in mV
-# E_K = -77.0
 E_K = -72.0
 E_L = -54.387
 # E_L = 10.6
@@ -57,11 +55,8 @@ def I_L(V):     return g_L * (V - E_L)
 
 # External current
 def I_inj(x, t):  # step up 10 uA/cm^2 every 100ms for 400ms
-     y= x * (t > 20.0) - x * (t > 20.2)
-     # y= x * (t > 0.2) - x * (t > 0.4) +  x * (t > 0.6) - x * (t > 0.8) +  x * (t > 0.6) - x * (t > 0.8)
-     # y= x * (t > 0.2) - x * (t > 0.4)
+     y= x * (t > 25.0) - x * (t > 25.2)
      return y
-     # return 10*t
 
 
 # The time to integrate over
@@ -86,12 +81,9 @@ def get_g_Na(m , h):
     return g_Na*(m**3)*h
 
 def parameter_fitting(x1,x2):
-    # np.linspace(x1,x2 , 0.01)
     for i in np.arange(x1,x2,1):
         X = odeint(dALLdt, [-60, 0.05, 0.6, 0.3], t, args=(i,))
         V = X[:, 0]
-
-        print("i",  i , np.array(np.where(V > 30)) > 288)
         if(len(np.where(V > 30)[0])>60):
             i1 = i
             for j in np.arange(i1-1,i1,0.01):
@@ -101,9 +93,10 @@ def parameter_fitting(x1,x2):
                     return j
 
 
-i = parameter_fitting(0,20)
-print("ii" , i )
-# X = odeint(dALLdt, [-65, 0.05, 0.6, 0.32], t)
+i = parameter_fitting(0,40)
+
+print("Minimum Current" , i )
+
 X = odeint(dALLdt, [-60, 0.05, 0.6, 0.3], t,(20,))
 V = X[:, 0]
 m = X[:, 1]
@@ -117,36 +110,37 @@ plt.figure()
 
 plt.subplot(5, 1, 1)
 plt.title('Hodgkin-Huxley Neuron')
-plt.plot(t, V, 'k')
+plt.plot(t[2000:], V[2000:], 'k')
 plt.ylabel('V (mV)')
 
+
 plt.subplot(5, 1, 2)
-plt.plot(t, ina, 'c', label='$I_{Na}$')
-plt.plot(t, ik, 'y', label='$I_{K}$')
-plt.plot(t, il, 'm', label='$I_{L}$')
-plt.ylabel('Current')
+plt.plot(t[2000:], get_g_k(n)[2000:], label='$g_{k}$')
+plt.plot(t[2000:], get_g_Na(m , h)[2000:], label='$g_{Na}$')
+plt.xlabel('t (ms)')
+plt.ylabel('$Conductance$')
+plt.ylim(-1, 40)
 plt.legend()
 
 plt.subplot(5, 1, 3)
-plt.plot(t, m, 'r', label='m')
-plt.plot(t, h, 'g', label='h')
-plt.plot(t, n, 'b', label='n')
+plt.plot(t[2000:], m[2000:], 'r', label='m')
+plt.plot(t[2000:], h[2000:], 'g', label='h')
+plt.plot(t[2000:], n[2000:], 'b', label='n')
 plt.ylabel('Gating Value')
 plt.legend()
 
 plt.subplot(5, 1, 4)
-plt.plot(t, I_inj(20 , t), 'k')
+plt.plot(t[2000:], ina[2000:], 'c', label='$I_{Na}$')
+plt.plot(t[2000:], ik[2000:], 'y', label='$I_{K}$')
+plt.plot(t[2000:], il[2000:], 'm', label='$I_{L}$')
+plt.ylabel('Current')
+plt.legend()
+
+plt.subplot(5, 1, 5)
+plt.plot(t[2000:], I_inj(20 , t)[2000:], 'k')
 plt.xlabel('t (ms)')
 plt.ylabel('$I_{inj}$ ($\\mu{A}/cm^2$)')
 plt.ylim(-1, 21)
 
-
-
-plt.subplot(5, 1, 5)
-plt.plot(t, get_g_k(n), label='$g_{k}$')
-plt.plot(t, get_g_Na(m , h), label='$g_{Na}$')
-plt.xlabel('t (ms)')
-plt.ylabel('$I_{inj}$ ($\\mu{A}/cm^2$)')
-plt.ylim(-1, 40)
-plt.legend()
 plt.show()
+
