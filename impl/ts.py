@@ -12,19 +12,15 @@ import scipy as sp
 import pylab as plt
 from scipy.integrate import odeint
 import numpy as np
-## Full Hodgkin-Huxley Model (copied from Computational Lab 2)
 
 # Constants
 C_m = 1.0  # membrane capacitance, in uF/cm^2
 g_Na = 120.0  # maximum conducances, in mS/cm^2
 g_K = 36.0
 g_L = 0.3
-# E_Na = 50.0  # Nernst reversal potentials, in mV
 E_Na = 55.0  # Nernst reversal potentials, in mV
-# E_K = -77.0
 E_K = -72.0
 E_L = -54.387
-# E_L = 10.6
 
 
 # Channel gating kinetics
@@ -61,12 +57,9 @@ def I_L(V):     return g_L * (V - E_L)
 
 
 # External current
-def I_inj(x, t , l):  # step up 10 uA/cm^2 every 100ms for 400ms
+def I_inj(x, t , l):
      y= x * (t > 25.0) - x * (t > 25.0+l)
-     # y= x * (t > 0.2) - x * (t > 0.4) +  x * (t > 0.6) - x * (t > 0.8) +  x * (t > 0.6) - x * (t > 0.8)
-     # y= x * (t > 0.2) - x * (t > 0.4)
      return y
-     # return 10*t
 
 
 # The time to integrate over
@@ -118,35 +111,28 @@ def parameter_fitting_t(cu,l):
                     return j
 
 
-# #t
-# i = parameter_fitting(0,40,0.1)
-# print("ii" , i )
-# i = parameter_fitting(0,40,0.25)
-# print("ii" , i )
-# i = parameter_fitting(0,40,0.5)
-# print("ii" , i )
-# i = parameter_fitting(0,40,3)
-# print("ii" , i )
+#part t
+i = parameter_fitting(0,40,0.1)
+print("Minimum Current for 0.1" , i )
+i = parameter_fitting(0,40,0.25)
+print("Minimum Current for 0.25" , i )
+i = parameter_fitting(0,40,0.5)
+print("Minimum Current for 0.5" , i )
+i = parameter_fitting(0,40,3)
+print("Minimum Current for 3" , i )
 
-#s
+#part s calculate rhebose
 rhebose = parameter_fitting(0,100,300)
+print("rhebose" , rhebose)
 
+#part s calculate chronaxie
 chronaxie = parameter_fitting_t(2*rhebose  , 10)
 print("chronaxie" , chronaxie)
-sct = np.empty([40,])
 
-#s
+#part s plotting
+sct = np.empty([40,])
 for i  in range(30):
     sct[i]  = parameter_fitting(0,40,i/5)
 plt.plot(sct)
 plt.show()
-
-
-
-
-
-
-
-# X = odeint(dALLdt, [-65, 0.05, 0.6, 0.32], t)
-
 
