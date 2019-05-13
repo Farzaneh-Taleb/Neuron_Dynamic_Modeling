@@ -75,14 +75,14 @@ t = sp.arange(0.0,100, .01)
 
 
 # Integrate!
-def dALLdt(X, t , i):
+def dALLdt(X, t , C_m):
     V, m, h, n = X
 
     # calculate membrane potential & activation variables
-    dVdt = (I_inj(i , t) - I_Na(V, m, h) - I_K(V, n) - I_L(V)) / C_m
+    dVdt = (I_inj(20 , t) - I_Na(V, m, h) - I_K(V, n) - I_L(V)) / C_m
     dmdt = alpha_m(V) * (1.0 - m) - beta_m(V) * m
     dhdt = alpha_h(V) * (1.0 - h) - beta_h(V) * h
-    dndt = 0
+    dndt = alpha_n(V) * (1.0 - n) - beta_n(V) * n
     return dVdt, dmdt, dhdt, dndt
 
 def get_g_k(n):
@@ -91,44 +91,33 @@ def get_g_k(n):
 def get_g_Na(m , h):
     return g_Na*(m**3)*h
 
-def parameter_fitting(x1,x2):
-    # np.linspace(x1,x2 , 0.01)
-    for i in np.arange(x1,x2,1):
-        X = odeint(dALLdt, [-60, 0.05, 0.6, 0.3], t, args=(i,))
-        V = X[:, 0]
-
-        print("i",  i , np.array(np.where(V > 30)) > 288)
-        if(len(np.where(V > 30)[0])>60):
-            i1 = i
-            for j in np.arange(i1-1,i1,0.01):
-                X = odeint(dALLdt, [-60, 0.05, 0.6, 0.3], t, args=(j,))
-                V = X[:, 0]
-                if (len(np.where(V > 30)[0]) > 60):
-                    return j
 
 
-i = parameter_fitting(0,20)
-print("ii" , i )
+# i = parameter_fitting(0,20)
+# print("ii" , i )
 # X = odeint(dALLdt, [-65, 0.05, 0.6, 0.32], t)
-X = odeint(dALLdt, [-60, 0.05, 0.6, 0.3], t,(20,))
-V = X[:, 0]
-m = X[:, 1]
-h = X[:, 2]
-n = X[:, 3]
-ina = I_Na(V, m, h)
-ik = I_K(V, n)
-il = I_L(V)
-
 plt.figure()
-
-plt.subplot(2, 1, 1)
+# plt.subplot(2, 1, 1)
 plt.title('Hodgkin-Huxley Neuron')
-plt.plot(t, V, 'k')
 plt.ylabel('V (mV)')
 
+i=0
+for c in np.arange(0.01,1,0.1):
+    i += 1
+    plt.subplot(10, 1, i)
+    X = odeint(dALLdt, [-60, 0.05, 0.6, 0.3], t, (c,))
+    V = X[:, 0]
+    m = X[:, 1]
+    h = X[:, 2]
+    n = X[:, 3]
+    ina = I_Na(V, m, h)
+    ik = I_K(V, n)
+    il = I_L(V)
+    plt.plot(t[2000:], V[2000:])
 
-plt.subplot(2, 1, 2)
-plt.plot(t, I_inj(20 , t), 'k')
+
+plt.subplot(11, 1, 11)
+plt.plot(t[2000:], I_inj(20 , t)[2000:], 'k')
 plt.xlabel('t (ms)')
 plt.ylabel('$I_{inj}$ ($\\mu{A}/cm^2$)')
 plt.ylim(-1, 21)
